@@ -9,6 +9,7 @@ from modules.keypoints import extract_keypoints, group_keypoints, BODY_PARTS_KPT
 from modules.load_state import load_state
 from val import normalize, pad_width
 
+import time
 
 class ImageReader(object):
     def __init__(self, file_names):
@@ -86,6 +87,8 @@ def run_demo(net, image_provider, height_size, cpu):
     upsample_ratio = 4
     color = [0, 224, 255]
     for img in image_provider:
+        start_time = time.time()
+
         orig_img = img.copy()
         heatmaps, pafs, scale, pad = infer_fast(net, img, height_size, stride, upsample_ratio, cpu)
 
@@ -116,7 +119,9 @@ def run_demo(net, image_provider, height_size, cpu):
                     cv2.line(img, (int(x_a), int(y_a)), (int(x_b), int(y_b)), color, 2)
 
         img = cv2.addWeighted(orig_img, 0.6, img, 0.4, 0)
+        
         cv2.imshow('Lightweight Human Pose Estimation Python Demo', img)
+        print("FPS: ", 1.0 / (time.time() - start_time))
         key = cv2.waitKey(33)
         if key == 27:  # esc
             return
